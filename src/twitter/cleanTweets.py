@@ -13,7 +13,6 @@ os.chdir('./data')
 tweets = pd.read_csv("tweets.csv", header = None)
 tweets.columns = ['Time','Tweet']
 
-print(tweets.head)
 
 
 #------------------- Clean ALL tweets -----------------------------
@@ -24,6 +23,7 @@ tweets['Tweet'] = tweets['Tweet'].apply(clean_tweet)
 
 print(tweets.head)
 
-#export
-#tweets.to_csv(r'C:\clean.csv', index=None, header=True)
+#------------------- Export Tweets to CSV file --------------------
+tweets.to_csv('cleanedtweets.csv', encoding='utf-8')
+
 
