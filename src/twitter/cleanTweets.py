@@ -10,8 +10,8 @@ import re
 
 #-------------------- Read in tweets.csv --------------------------
 os.chdir('./data')
-tweets = pd.read_csv("tweets.csv", header = None)
-tweets.columns = ['Time','Tweet']
+tweets = pd.read_csv("newTweets.csv", header = None)
+tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 
 
 
