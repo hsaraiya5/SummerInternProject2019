@@ -1,8 +1,12 @@
 import requests
+import pandas as pd
 # pprint is used to format the JSON response
 from pprint import pprint
 import json
 from IPython.display import HTML
+import csv
+import sys
+import os
 
 ## reference : https://www.johanahlen.info/en/2017/04/text-analytics-and-sentiment-analysis-with-microsoft-cognitive-services/
 
@@ -30,10 +34,25 @@ documents = {"documents" : [
 ]}
 
 ### Crowd Tangle data
+var_file = "CrowdTangle.csv"
 
+ct_tweets = pd.read_csv(var_file).rename({'Message':'text'}, axis='columns') #read in as pandas df
+
+ct_dict = ct_tweets.to_dict('dict') #convert to type dict
+ct_jason = json.dumps(ct_dict, indent=4)
+#pprint(documents)
+#print(ct_jason)
+
+
+#convert csv to json??
+os.chdir('./data')
+exampleFile = open('C:/Users/u715216/SummerInternProject2019/data/CrowdTangle.csv')
+exampleReader = csv.reader('CrowdTangle.csv')
+for row in exampleReader:
+  print('Row #' + str(exampleReader.line_num) + ' ' + str(row))
 
 #-------------------- Language Detection -------------------------------------------------------#
-response  = requests.post(languages_url, headers=headers, json=documents)
+response  = requests.post(languages_url, headers=headers, json=ct_dict)
 languages = response.json()
 pprint(languages)
 
