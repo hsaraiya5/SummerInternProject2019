@@ -32,31 +32,45 @@ documents = {"documents" : [
   {"id": "3", "language": "es", "text": "Los caminos que llevan hasta Monte Rainier son espectaculares y hermosos."},  
   {"id": "4", "language": "es", "text": "La carretera estaba atascada. Había mucho tráfico el día de ayer."}
 ]}
-
+print(type(documents))
+pprint(documents)
 ### Crowd Tangle data
 csv_file = "./data/CrowdTangle.csv"
 
 ct_tweets = pd.read_csv(csv_file, sep = ",").rename({'Message':'text'}, axis='columns') #read in as pandas df
+ct_tweets= ct_tweets.assign(id = ct_tweets.reset_index().index+1, language = ['en'] * ct_tweets.shape[0]) # add id and language column
+tweets = pd.DataFrame(ct_tweets[['id','language','text']]) #.set_index('id')) #get just id, language, and text
+#print(tweets.head)
 
-tweets = ct_tweets[['text']].to_json(orient = 'records')
+tweets_dict = {"documents" : tweets.to_dict('records')} #convert df to dictionary
+print(type(tweets_dict)) #type list?
+pprint(tweets_dict)
+
+#tweets_json = tweets.to_json(orient = 'records')
+#print(type(tweets_json))
+#pprint(tweets_json)
+
+
+
+
 #ct_dict = ct_tweets.to_dict('dict') #convert to type dict
 #ct_jason = json.dumps(ct_dict, indent=4)
 
 
 #-------------------- Language Detection -------------------------------------------------------#
-response  = requests.post(languages_url, headers=headers, json=tweets)
+response  = requests.post(languages_url, headers=headers, json=tweets_dict)
 languages = response.json()
 pprint(languages)
 
 #-------------------- Sentiment Analysis --------------------------------------------------------#
 
 ###  Use the Requests library to send the documents to the API
-response  = requests.post(sentiment_url, headers=headers, json=documents)
+response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
 pprint(sentiments)
 
 #--------------------- Keywords ----------------------------------------------------------------#
-response = requests.post(keyPhrases_url, headers=headers, json=documents)
+response = requests.post(keyPhrases_url, headers=headers, json=tweets_dict)
 keyPhrases = response.json()
 pprint(keyPhrases)
 
