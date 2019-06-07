@@ -40,21 +40,11 @@ csv_file = "./data/CrowdTangle.csv"
 ct_tweets = pd.read_csv(csv_file, sep = ",").rename({'Message':'text'}, axis='columns') #read in as pandas df
 ct_tweets= ct_tweets.assign(id = ct_tweets.reset_index().index+1, language = ['en'] * ct_tweets.shape[0]) # add id and language column
 tweets = pd.DataFrame(ct_tweets[['id','language','text']]) #.set_index('id')) #get just id, language, and text
-#print(tweets.head)
+#print(tweets.head)S
 
 tweets_dict = {"documents" : tweets.to_dict('records')} #convert df to dictionary
-print(type(tweets_dict)) #type list?
-pprint(tweets_dict)
-
-#tweets_json = tweets.to_json(orient = 'records')
-#print(type(tweets_json))
-#pprint(tweets_json)
-
-
-
-
-#ct_dict = ct_tweets.to_dict('dict') #convert to type dict
-#ct_jason = json.dumps(ct_dict, indent=4)
+#print(type(tweets_dict)) 
+#pprint(tweets_dict)
 
 
 #-------------------- Language Detection -------------------------------------------------------#
