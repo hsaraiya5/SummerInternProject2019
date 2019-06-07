@@ -8,7 +8,6 @@ import csv
 import sys
 import os
 
-## reference : https://www.johanahlen.info/en/2017/04/text-analytics-and-sentiment-analysis-with-microsoft-cognitive-services/
 
 # -------------------- Set up Cognitive Services -------------------------------------------------#
 subscription_key = "b672d4a126bb4092824e5a7e389fc698"
@@ -19,10 +18,6 @@ languages_url = endpoint + "languages"
 
 headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
-print(sentiment_url)
-print(keyPhrases_url)
-print(languages_url)
-
 #-------------------- Read the Data -------------------------------------------------------------#
 ### Azure text example
 ### Documents dictionary with ID, and Text tuples.
@@ -32,19 +27,17 @@ documents = {"documents" : [
   {"id": "3", "language": "es", "text": "Los caminos que llevan hasta Monte Rainier son espectaculares y hermosos."},  
   {"id": "4", "language": "es", "text": "La carretera estaba atascada. Había mucho tráfico el día de ayer."}
 ]}
-print(type(documents))
-pprint(documents)
+
 ### Crowd Tangle data
 csv_file = "./data/CrowdTangle.csv"
 
 ct_tweets = pd.read_csv(csv_file, sep = ",").rename({'Message':'text'}, axis='columns') #read in as pandas df
 ct_tweets= ct_tweets.assign(id = ct_tweets.reset_index().index+1, language = ['en'] * ct_tweets.shape[0]) # add id and language column
 tweets = pd.DataFrame(ct_tweets[['id','language','text']]) #.set_index('id')) #get just id, language, and text
-#print(tweets.head)S
+
 
 tweets_dict = {"documents" : tweets.to_dict('records')} #convert df to dictionary
-#print(type(tweets_dict)) 
-#pprint(tweets_dict)
+
 
 
 #-------------------- Language Detection -------------------------------------------------------#
