@@ -77,4 +77,5 @@ df = pd.DataFrame(columns=['id', 'score', 'keyPhrases'])
 for x in range(totalLength):
   df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
-df.to_csv('sentimentOutput.csv')
+export = pd.concat([ct_tweets.drop(['id','language'], axis=1),df.drop('id', axis=1)], axis=1)
+export.to_csv('sentimentOutput2.csv')
