@@ -5,13 +5,16 @@ from pprint import pprint
 import json
 from IPython.display import HTML
 import csv
+from csv import DictWriter
 import sys
 import os
+import simplejson
+
 
 
 # -------------------- Set up Cognitive Services -------------------------------------------------#
-subscription_key = "b672d4a126bb4092824e5a7e389fc698"
-endpoint = "https://northcentralus.api.cognitive.microsoft.com/text/analytics/v2.0/"
+subscription_key = "49912eb60afc4af1889999e11f5d51c1"
+endpoint = "https://eastus.api.cognitive.microsoft.com/text/analytics/v2.0/"
 sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
@@ -43,18 +46,35 @@ tweets_dict = {"documents" : tweets.to_dict('records')} #convert df to dictionar
 #-------------------- Language Detection -------------------------------------------------------#
 response  = requests.post(languages_url, headers=headers, json=tweets_dict)
 languages = response.json()
-pprint(languages)
+#pprint(languages)
 
 #-------------------- Sentiment Analysis --------------------------------------------------------#
 
 ###  Use the Requests library to send the documents to the API
 response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
-pprint(sentiments)
+#pprint(sentiments)
 
 #--------------------- Keywords ----------------------------------------------------------------#
 response = requests.post(keyPhrases_url, headers=headers, json=tweets_dict)
 keyPhrases = response.json()
-pprint(keyPhrases)
+#pprint(keyPhrases)
+
+sentimentValues = list(sentiments.values())
+
+sentimentObjects = sentimentValues[0]
+
+keyPhrasesValues = list(keyPhrases.values())
+
+keyPhrasesObjects = keyPhrasesValues[0]
 
 
+totalLength = len(sentimentValues[0])
+
+
+df = pd.DataFrame(columns=['id', 'score', 'keyPhrases'])
+
+for x in range(totalLength):
+  df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
+
+df.to_csv('sentimentOutput.csv')
