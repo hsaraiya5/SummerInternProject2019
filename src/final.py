@@ -54,20 +54,18 @@ tweets['Tweet'] = tweets['Tweet'].apply(clean_tweet)
 
 
 # Export tweets to new CSV file
-tweets.to_csv('sustainablelifestyleClean.csv', encoding='utf-8')
+#tweets.to_csv('sustainablelifestyleClean.csv', encoding='utf-8')
 
 
 # Read in data to begin sentiment Analysis
-### Crowd Tangle data
-csv_file = "./data/CrowdTangle.csv"
+#csv_file = "./data/sustainablelifestyleClean.csv"
 
-ct_tweets = pd.read_csv(csv_file, sep = ",").rename({'Message':'text'}, axis='columns') #read in as pandas df
-ct_tweets= ct_tweets.assign(id = ct_tweets.reset_index().index+1, language = ['en'] * ct_tweets.shape[0]) # add id and language column
-tweets = pd.DataFrame(ct_tweets[['id','language','text']]) #.set_index('id')) #get just id, language, and text
+#ct_tweets = pd.read_csv(csv_file, sep = ",").rename({'Tweet':'text'}, axis='columns') #read in as pandas df
+tweets= tweets.assign(id = tweets.reset_index().index+1, language = ['en'] * tweets.shape[0]).rename({'Tweet':'text'}, axis='columns') # add id and language column
+tweets_temp = pd.DataFrame(tweets[['id','language','text']]) #.set_index('id')) #get just id, language, and text
+tweets_dict = {"documents" : tweets_temp.to_dict('records')} #convert df to dictionary
 
-tweets_dict = {"documents" : tweets.to_dict('records')} #convert df to dictionary
-
-
+pprint(tweets_dict)
 # Language Detection
 response  = requests.post(languages_url, headers=headers, json=tweets_dict)
 languages = response.json()
@@ -96,5 +94,5 @@ df = pd.DataFrame(columns=['id', 'score', 'keyPhrases'])
 for x in range(totalLength):
   df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
-export = pd.concat([ct_tweets.drop(['id','language'], axis=1),df.drop('id', axis=1)], axis=1)
-export.to_csv('sentimentOutput2.csv')
+export = pd.concat([tweets.drop(['id','language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
+export.to_csv('sustainablelifestyleOutput.csv')
