@@ -29,49 +29,43 @@ headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
 
 # Obtaining tweets based on search query, and specified number of tweets
-search_results = api.search(q ="#sustainablelifestyle",count = 200)
+queries = ["#sustainablelifestyle", "glassbottle", "#upcycle", "#zerowasteliving"]
 
-
-# Opening new CSV file and writing tweet info to file
-csvFile = open('data/sustainablelifestyle.csv', 'a')
-csvWriter = csv.writer(csvFile)
-for tweet in search_results:
+for i in range(len(queries)):
+  search_results = api.search(q = queries[i],count = 200)
+  # Opening new CSV file and writing tweet info to file
+  csvFile = open('data/rawmanyqueries.csv', 'a')
+  csvWriter = csv.writer(csvFile)
+  for tweet in search_results:
     csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count])
-csvFile.close()
+  csvFile.close()
+
+
 
 
 #-Read in tweets from CSV to a dataframe
 os.chdir('./data')
-tweets = pd.read_csv("sustainablelifestyle.csv", header = None)
+tweets = pd.read_csv("rawmanyqueries.csv", header = None)
 tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 
 
 # Clean the text of each tweet
 def clean_tweet(string):
-    return(re.sub(r"\\x\w\w","",string)[1:].strip('\'').strip('\"'))
+    return(re.sub(r"\\x\w\w","",string).rstrip()[1:].strip('\'').strip('\"'))
 
 tweets['Tweet'] = tweets['Tweet'].apply(clean_tweet)
 
 
-# Export tweets to new CSV file
-#tweets.to_csv('sustainablelifestyleClean.csv', encoding='utf-8')
-
-
-# Read in data to begin sentiment Analysis
-#csv_file = "./data/sustainablelifestyleClean.csv"
-
-#ct_tweets = pd.read_csv(csv_file, sep = ",").rename({'Tweet':'text'}, axis='columns') #read in as pandas df
+# Re-format to run tweets through azure api
 tweets= tweets.assign(id = tweets.reset_index().index+1, language = ['en'] * tweets.shape[0]).rename({'Tweet':'text'}, axis='columns') # add id and language column
 tweets_temp = pd.DataFrame(tweets[['id','language','text']]) #.set_index('id')) #get just id, language, and text
 tweets_dict = {"documents" : tweets_temp.to_dict('records')} #convert df to dictionary
 
-pprint(tweets_dict)
 # Language Detection
 response  = requests.post(languages_url, headers=headers, json=tweets_dict)
 languages = response.json()
 
 # Sentiment Analysis
-###  Use the Requests library to send the documents to the API
 response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
 
@@ -94,5 +88,6 @@ df = pd.DataFrame(columns=['id', 'score', 'keyPhrases'])
 for x in range(totalLength):
   df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
+# combine azure data to original data
 export = pd.concat([tweets.drop(['id','language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
-export.to_csv('sustainablelifestyleOutput.csv')
+export.to_csv('manyqueries.csv')
