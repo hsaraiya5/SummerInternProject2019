@@ -24,9 +24,9 @@ for tweet in search_results:
     csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count])
 
 
+
+
 csvFile.close()
-
-
 #-------------------- Read in tweets.csv --------------------------
 os.chdir('./data')
 tweets = pd.read_csv("sustainablelifestyle.csv", header = None)

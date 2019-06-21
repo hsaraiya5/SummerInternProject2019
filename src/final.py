@@ -20,7 +20,7 @@ auth.set_access_token('1131180954851131392-3mM1DFFs1CRr80YaBMsMrMXSrw5hC9', 's9S
 api = tweepy.API(auth)
 
 # Set up Cognitive Services
-subscription_key = "aadfe086c9704066937b841cc6eb6e7e"
+subscription_key = "5386c7c2611441959303f274cdbf5af1"
 endpoint = "https://eastus.api.cognitive.microsoft.com/"
 sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
