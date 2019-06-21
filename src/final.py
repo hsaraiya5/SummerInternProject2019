@@ -20,8 +20,8 @@ auth.set_access_token('1131180954851131392-3mM1DFFs1CRr80YaBMsMrMXSrw5hC9', 's9S
 api = tweepy.API(auth)
 
 # Set up Cognitive Services
-subscription_key = "49912eb60afc4af1889999e11f5d51c1"
-endpoint = "https://eastus.api.cognitive.microsoft.com/text/analytics/v2.0/"
+subscription_key = "aadfe086c9704066937b841cc6eb6e7e"
+endpoint = "https://eastus.api.cognitive.microsoft.com/"
 sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
@@ -29,12 +29,12 @@ headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
 
 # Obtaining tweets based on search query, and specified number of tweets
-queries = ["#sustainablelifestyle", "glassbottle", "#upcycle", "#zerowasteliving"]
+queries = ["sustainabl", "glass", "bottle"]
 
 for i in range(len(queries)):
-  search_results = api.search(q = queries[i],count = 200)
+  search_results = api.search(q = queries[i])#,count = 200)
   # Opening new CSV file and writing tweet info to file
-  csvFile = open('data/rawmanyqueries.csv', 'a')
+  csvFile = open('data/rawmanyqueries2.csv', 'a')
   csvWriter = csv.writer(csvFile)
   for tweet in search_results:
     csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count])
@@ -45,13 +45,14 @@ for i in range(len(queries)):
 
 #-Read in tweets from CSV to a dataframe
 os.chdir('./data')
-tweets = pd.read_csv("rawmanyqueries.csv", header = None)
+tweets = pd.read_csv("rawmanyqueries2.csv", header = None)
 tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 
 
 # Clean the text of each tweet
 def clean_tweet(string):
-    return(re.sub(r"\\x\w\w","",string).rstrip()[1:].strip('\'').strip('\"'))
+    string = string.replace('\n','')
+    return(re.sub(r"\\x\w\w","",string)[1:].strip('\'').strip('\"'))
 
 tweets['Tweet'] = tweets['Tweet'].apply(clean_tweet)
 
@@ -90,4 +91,4 @@ for x in range(totalLength):
 
 # combine azure data to original data
 export = pd.concat([tweets.drop(['id','language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
-export.to_csv('manyqueries.csv')
+export.to_csv('manyqueries2.csv')
