@@ -20,8 +20,8 @@ auth.set_access_token('1131180954851131392-3mM1DFFs1CRr80YaBMsMrMXSrw5hC9', 's9S
 api = tweepy.API(auth)
 
 # Set up Cognitive Services
-subscription_key = "aadfe086c9704066937b841cc6eb6e7e"
-endpoint = "https://eastus.api.cognitive.microsoft.com/"
+subscription_key = "0927e8dd00424bad9a18ffef4c0a2618"
+endpoint = "https://eastus.api.cognitive.microsoft.com/text/analytics/v2.0/"
 sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
@@ -69,7 +69,7 @@ languages = response.json()
 # Sentiment Analysis
 response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
-
+pprint(sentiments)
 # Keywords
 response = requests.post(keyPhrases_url, headers=headers, json=tweets_dict)
 keyPhrases = response.json()
