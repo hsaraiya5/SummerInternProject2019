@@ -59,7 +59,6 @@ tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 
 # Clean the text of each tweet
 def clean_tweet(string):
-    #string = string.replace('\n','')
     return(re.sub(r"\\x\w\w","",string)[1:].strip('\'').strip('\"'))
 
 tweets['Tweet'] = tweets['Tweet'].apply(clean_tweet)
@@ -71,13 +70,13 @@ tweets_temp = pd.DataFrame(tweets[['id','language','text']]) #.set_index('id')) 
 tweets_dict = {"documents" : tweets_temp.to_dict('records')} #convert df to dictionary
 
 # Language Detection
-response  = requests.post(languages_url, headers=headers, json=tweets_dict)
-languages = response.json()
+#response  = requests.post(languages_url, headers=headers, json=tweets_dict)
+#languages = response.json()
 
 # Sentiment Analysis
 response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
-pprint(sentiments)
+
 # Keywords
 response = requests.post(keyPhrases_url, headers=headers, json=tweets_dict)
 keyPhrases = response.json()
@@ -98,7 +97,9 @@ for x in range(totalLength):
   df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
 # combine azure data to original data
-export = pd.concat([tweets.drop(['id','language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
+export = pd.concat([tweets.drop(['id', 'language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
+export = export.assign(Category1="", Category2="", Category3="") 
+export = export[['Time','Tweet', 'Sentiment', 'Category1', 'Category2', 'Category3', 'keyPhrases', 'Favorites', 'Retweets']] #reorder columns
 csvFileName = query + 'final.csv'
 export.to_csv(csvFileName)
 os.remove(fileName)
