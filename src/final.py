@@ -20,26 +20,28 @@ auth.set_access_token('1131180954851131392-3mM1DFFs1CRr80YaBMsMrMXSrw5hC9', 's9S
 api = tweepy.API(auth)
 
 # Set up Cognitive Services
-<<<<<<< HEAD
-subscription_key = "5386c7c2611441959303f274cdbf5af1"
-endpoint = "https://eastus.api.cognitive.microsoft.com/"
-=======
 subscription_key = "0927e8dd00424bad9a18ffef4c0a2618"
 endpoint = "https://eastus.api.cognitive.microsoft.com/text/analytics/v2.0/"
->>>>>>> efcb9ac3c0f097f6587a2c4df93e5fa680d296fd
 sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
 headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
 
-# Obtaining tweets based on search query, and specified number of tweets
-queries = ["sustainabl", "glass", "bottle"]
+query = input("Enter a search term/phrase: ")
+date = input("Enter data from which you want tweets (YYYY-MM-DD): ")
 
+# Obtaining tweets based on search query, and specified number of tweets
+queries = [query]
+
+
+query = query.replace(" ", "")
+csvFileName = 'finalData/' + query + '.csv'
 for i in range(len(queries)):
-  search_results = api.search(q = queries[i])#,count = 200)
+  search_results = api.search(q = queries[i], until= date)
   # Opening new CSV file and writing tweet info to file
-  csvFile = open('data/rawmanyqueries2.csv', 'a')
+  
+  csvFile = open(csvFileName, 'a')
   csvWriter = csv.writer(csvFile)
   for tweet in search_results:
     csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count])
@@ -49,14 +51,15 @@ for i in range(len(queries)):
 
 
 #-Read in tweets from CSV to a dataframe
-os.chdir('./data')
-tweets = pd.read_csv("rawmanyqueries2.csv", header = None)
+os.chdir('./finalData')
+fileName = query +'.csv'
+tweets = pd.read_csv(fileName, header = None)
 tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 
 
 # Clean the text of each tweet
 def clean_tweet(string):
-    string = string.replace('\n','')
+    #string = string.replace('\n','')
     return(re.sub(r"\\x\w\w","",string)[1:].strip('\'').strip('\"'))
 
 tweets['Tweet'] = tweets['Tweet'].apply(clean_tweet)
@@ -96,4 +99,6 @@ for x in range(totalLength):
 
 # combine azure data to original data
 export = pd.concat([tweets.drop(['id','language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
-export.to_csv('manyqueries2.csv')
+csvFileName = query + 'final.csv'
+export.to_csv(csvFileName)
+os.remove(fileName)
