@@ -12,6 +12,7 @@ import csv
 from csv import DictWriter
 import sys
 import simplejson
+from openpyxl import load_workbook
 
 
 # Setting up access key, secret key, and api in order to get tweets
@@ -98,8 +99,40 @@ for x in range(totalLength):
 
 # combine azure data to original data
 export = pd.concat([tweets.drop(['id', 'language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
+# content Catgories
+categories = pd.DataFrame({'Category': ['Lifestyle', 'Cost', 'Aesthetic', 'Product', 'Sustainability', 'Art', 'Convenience','Innovation', 'Advertisement']})
 export = export.assign(Category1="", Category2="", Category3="") 
-export = export[['Time','Tweet', 'Sentiment', 'Category1', 'Category2', 'Category3', 'keyPhrases', 'Favorites', 'Retweets']] #reorder columns
+export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Category1', 'Category2', 'Category3', 'keyPhrases']] #reorder columns
+
+#export csv
 csvFileName = query + 'final.csv'
 export.to_csv(csvFileName)
 os.remove(fileName)
+
+# export/append to excel workbook
+## check if file exists
+xlFileName = './' + query + 'final.xlsx'
+
+import os.path
+from os import path
+
+if path.exists(xlFileName):
+    print(xlFileName + ' exists') #Confirmation message
+    temp = pd.read_excel(xlFileName) #Append new data to existing data
+    export = temp.append(export)
+
+    #export to excel workbook
+    book = load_workbook(xlFileName)
+    writer = pd.ExcelWriter(xlFileName, engine='openpyxl') 
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets) 
+
+    export.to_excel(writer, "Sheet 1", index=False) 
+
+    writer.save()
+else:
+    print(xlFileName+' new')
+    write = pd.ExcelWriter(xlFileName, engine='xlsxwriter')
+    export.to_excel(write, sheet_name='Sheet 1', index=False)
+    categories.to_excel(write, sheet_name='Sheet 2')
+    write.save()
