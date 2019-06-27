@@ -12,6 +12,8 @@ import csv
 from csv import DictWriter
 import sys
 
+from openpyxl import load_workbook
+
 
 
 # Setting up access key, secret key, and api in order to get tweets
@@ -27,41 +29,53 @@ keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
 headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
+categories_df = pd.read_csv('src/categories2.csv')
+userInput = input("Would you like to update the keywords database? (Y/N): ")
+if userInput == 'Y':
 
-  
+  userAnswer = 'Y'
+  while userAnswer == 'Y':
+    
+    categories_df = pd.read_csv('src/categories2.csv')
 
-categories_df = pd.read_csv('src/categories.csv')
-
-print(categories_df)
-categories_list = list(categories_df.columns.values)
-
-print(categories_list)
-
-category_name = input("Please enter the name of the category you would like to add/update: ")
-if category_name not in categories_list:
-  categories_df[category_name] = 'test'
+    print(categories_df)
+    categories_list = list(categories_df.columns.values)
 
 
-phrase = input("Please enter the keyword/phrase you would like to add to the category: ")
-
-keywords = list(categories_df[category_name])
-print(keywords)
-if phrase not in keywords:
-  keywords.append(phrase)
-  categories_df[category_name] = keywords
-else:
-  print("The phrase '" + phrase + "' already exists within this category")
-
-categories_df.to_csv("src/categories.csv")
+    category_name = input("Please enter the name of the category you would like to add/update: ")
+    if category_name not in categories_list:
+      categories_df[category_name] = 'test'
 
 
+    phrase = input("Please enter the keyword/phrase you would like to add to the category: ")
+
+    keywords = list(categories_df[category_name])
+    index = keywords.index('test')
+    if phrase not in keywords:
+      keywords[index] = phrase
+      categories_df[category_name] = keywords
+    else:
+      print("The phrase '" + phrase + "' already exists within this category")
+
+    userAnswer = input("Would you like to keep updating/adding to the set of key phrases? (Y/N): ")
+    categories_df.to_csv("src/categories2.csv")
 
 
+searchAnswer = input("Would you like to run a search? (Y/N): ")
+
+searchCategory = 'test'
+if searchAnswer == 'Y':
+  categoryChoices = list(categories_df.columns.values)
+  print(categoryChoices)
+  searchCategory = input("Please select a category name from the choices above: ")
+  keywordChoices = list(categories_df[searchCategory])
+  print(keywordChoices)
+  keywordAnswer = input("Please select a keyword to search from the choices above: ")
 
 
+material = input("What material would you like to search about? (glass/plastic/aluminum can): ")
 
-
-query = input("Enter a search term/phrase: ")
+query = material + keywordAnswer
 date = input("Enter data from which you want tweets (YYYY-MM-DD): ")
 
 # Obtaining tweets based on search query, and specified number of tweets
@@ -69,7 +83,7 @@ queries = [query]
 
 
 query = query.replace(" ", "")
-csvFileName = 'finalData/' + query + '.csv'
+csvFileName = 'finalData/' + searchCategory + '.csv'
 for i in range(len(queries)):
   search_results = api.search(q = queries[i], until= date)
   # Opening new CSV file and writing tweet info to file
@@ -85,7 +99,7 @@ for i in range(len(queries)):
 
 #-Read in tweets from CSV to a dataframe
 os.chdir('./finalData')
-fileName = query +'.csv'
+fileName = searchCategory +'.csv'
 tweets = pd.read_csv(fileName, header = None)
 tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 
@@ -109,10 +123,7 @@ tweets_dict = {"documents" : tweets_temp.to_dict('records')} #convert df to dict
 # Sentiment Analysis
 response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
-<<<<<<< HEAD
-#pprint(sentiments)
-=======
->>>>>>> cf5fdb0d43030f956ce100aac062bb997507d37b
+
 
 # Keywords
 response = requests.post(keyPhrases_url, headers=headers, json=tweets_dict)
@@ -141,13 +152,13 @@ export = export.assign(Category1="", Category2="", Category3="")
 export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Category1', 'Category2', 'Category3', 'keyPhrases']] #reorder columns
 
 #export csv
-csvFileName = query + 'final.csv'
+csvFileName = searchCategory + 'final.csv'
 export.to_csv(csvFileName)
 os.remove(fileName)
 
 # export/append to excel workbook
 ## check if file exists
-xlFileName = './' + query + 'final.xlsx'
+xlFileName = './' + searchCategory + 'final.xlsx'
 
 import os.path
 from os import path
