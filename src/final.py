@@ -11,7 +11,8 @@ from IPython.display import HTML
 import csv
 from csv import DictWriter
 import sys
-import simplejson
+import numpy as np
+import mysql.connector
 
 
 # Setting up access key, secret key, and api in order to get tweets
@@ -26,6 +27,39 @@ sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
 headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
+
+
+  
+
+categories_df = pd.read_csv('src/categories.csv')
+
+print(categories_df)
+categories_list = list(categories_df.columns.values)
+
+print(categories_list)
+
+category_name = input("Please enter the name of the category you would like to add/update: ")
+if category_name not in categories_list:
+  categories_df[category_name] = 'test'
+
+
+phrase = input("Please enter the keyword/phrase you would like to add to the category: ")
+
+keywords = list(categories_df[category_name])
+print(keywords)
+if phrase not in keywords:
+  keywords.append(phrase)
+  categories_df[category_name] = keywords
+else:
+  print("The phrase '" + phrase + "' already exists within this category")
+
+categories_df.to_csv("src/categories.csv")
+
+
+
+
+
+
 
 
 query = input("Enter a search term/phrase: ")
@@ -77,7 +111,8 @@ languages = response.json()
 # Sentiment Analysis
 response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
-pprint(sentiments)
+#pprint(sentiments)
+
 # Keywords
 response = requests.post(keyPhrases_url, headers=headers, json=tweets_dict)
 keyPhrases = response.json()
