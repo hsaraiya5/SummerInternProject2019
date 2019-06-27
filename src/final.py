@@ -11,8 +11,13 @@ from IPython.display import HTML
 import csv
 from csv import DictWriter
 import sys
+<<<<<<< HEAD
 import numpy as np
 import mysql.connector
+=======
+import simplejson
+from openpyxl import load_workbook
+>>>>>>> cf5fdb0d43030f956ce100aac062bb997507d37b
 
 
 # Setting up access key, secret key, and api in order to get tweets
@@ -93,7 +98,6 @@ tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 
 # Clean the text of each tweet
 def clean_tweet(string):
-    #string = string.replace('\n','')
     return(re.sub(r"\\x\w\w","",string)[1:].strip('\'').strip('\"'))
 
 tweets['Tweet'] = tweets['Tweet'].apply(clean_tweet)
@@ -105,13 +109,16 @@ tweets_temp = pd.DataFrame(tweets[['id','language','text']]) #.set_index('id')) 
 tweets_dict = {"documents" : tweets_temp.to_dict('records')} #convert df to dictionary
 
 # Language Detection
-response  = requests.post(languages_url, headers=headers, json=tweets_dict)
-languages = response.json()
+#response  = requests.post(languages_url, headers=headers, json=tweets_dict)
+#languages = response.json()
 
 # Sentiment Analysis
 response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
 sentiments = response.json()
+<<<<<<< HEAD
 #pprint(sentiments)
+=======
+>>>>>>> cf5fdb0d43030f956ce100aac062bb997507d37b
 
 # Keywords
 response = requests.post(keyPhrases_url, headers=headers, json=tweets_dict)
@@ -133,7 +140,41 @@ for x in range(totalLength):
   df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
 # combine azure data to original data
-export = pd.concat([tweets.drop(['id','language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
+export = pd.concat([tweets.drop(['id', 'language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
+# content Catgories
+categories = pd.DataFrame({'Category': ['Lifestyle', 'Cost', 'Aesthetic', 'Product', 'Sustainability', 'Art', 'Convenience','Innovation', 'Advertisement']})
+export = export.assign(Category1="", Category2="", Category3="") 
+export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Category1', 'Category2', 'Category3', 'keyPhrases']] #reorder columns
+
+#export csv
 csvFileName = query + 'final.csv'
 export.to_csv(csvFileName)
 os.remove(fileName)
+
+# export/append to excel workbook
+## check if file exists
+xlFileName = './' + query + 'final.xlsx'
+
+import os.path
+from os import path
+
+if path.exists(xlFileName):
+    print(xlFileName + ' exists') #Confirmation message
+    temp = pd.read_excel(xlFileName) #Append new data to existing data
+    export = temp.append(export)
+
+    #export to excel workbook
+    book = load_workbook(xlFileName)
+    writer = pd.ExcelWriter(xlFileName, engine='openpyxl') 
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets) 
+
+    export.to_excel(writer, "Sheet 1", index=False) 
+
+    writer.save()
+else:
+    print(xlFileName+' new')
+    write = pd.ExcelWriter(xlFileName, engine='xlsxwriter')
+    export.to_excel(write, sheet_name='Sheet 1', index=False)
+    categories.to_excel(write, sheet_name='Sheet 2')
+    write.save()
