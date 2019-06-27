@@ -11,13 +11,7 @@ from IPython.display import HTML
 import csv
 from csv import DictWriter
 import sys
-<<<<<<< HEAD
-import numpy as np
-import mysql.connector
-=======
-import simplejson
-from openpyxl import load_workbook
->>>>>>> cf5fdb0d43030f956ce100aac062bb997507d37b
+
 
 
 # Setting up access key, secret key, and api in order to get tweets
