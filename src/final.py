@@ -29,14 +29,14 @@ keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
 headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
-categories_df = pd.read_csv('src/categories2.csv')
+categories_df = pd.read_csv('src/categories.csv')
 userInput = input("Would you like to update the keywords database? (Y/N): ")
 if userInput == 'Y':
 
   userAnswer = 'Y'
   while userAnswer == 'Y':
     
-    categories_df = pd.read_csv('src/categories2.csv')
+    categories_df = pd.read_csv('src/categories.csv')
 
     print(categories_df)
     categories_list = list(categories_df.columns.values)
@@ -58,7 +58,7 @@ if userInput == 'Y':
       print("The phrase '" + phrase + "' already exists within this category")
 
     userAnswer = input("Would you like to keep updating/adding to the set of key phrases? (Y/N): ")
-    categories_df.to_csv("src/categories2.csv", index=False)
+    categories_df.to_csv("src/categories.csv", index=False)
 
 
 searchAnswer = input("Would you like to run a search? (Y/N): ")
@@ -148,15 +148,14 @@ for x in range(totalLength):
 # combine azure data to original data
 export = pd.concat([tweets.drop(['id', 'language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
 # content Catgories
-categories = pd.DataFrame({'Category': ['Lifestyle', 'Cost', 'Aesthetic', 'Product', 'Sustainability', 'Art', 'Convenience','Innovation', 'Advertisement']})
-export = export.assign(Material = material, Category1=searchCategory, Category2="", Category3="", Irrelevent = 0) 
-export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Material','Category1', 'Category2', 'Category3', 'keyPhrases', 'Irrelevent']] #reorder columns
+categories = pd.DataFrame({'Category': categories_df.columns.values})
+export = export.assign(Material = material, Category1=searchCategory, Category2="", Category3="", Irrelevent = 0, News=0) 
+export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Material','Category1', 'Category2', 'Category3', 'keyPhrases', 'News', 'Irrelevent']] #reorder columns
 
 #export csv
 csvFileName = searchCategory + 'final.csv'
 export.to_csv(csvFileName)
-removeFile = searchCategory + ".csv"
-os.remove(removeFile)
+os.remove(fileName)
 os.remove(csvFileName)
 
 # export/append to excel workbook
