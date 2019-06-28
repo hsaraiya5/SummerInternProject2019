@@ -69,7 +69,8 @@ if searchAnswer == 'Y':
   print(categoryChoices)
   searchCategory = input("Please select a category name from the choices above: ")
   keywordChoices = list(categories_df[searchCategory])
-  print(keywordChoices)
+  testIndex = keywordChoices.index('test')
+  print(keywordChoices[:testIndex])
   keywordAnswer = input("Please select a keyword to search from the choices above: ")
 
 
@@ -148,13 +149,15 @@ for x in range(totalLength):
 export = pd.concat([tweets.drop(['id', 'language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
 # content Catgories
 categories = pd.DataFrame({'Category': ['Lifestyle', 'Cost', 'Aesthetic', 'Product', 'Sustainability', 'Art', 'Convenience','Innovation', 'Advertisement']})
-export = export.assign(Material = material, Category1=searchCategory, Category2="", Category3="") 
-export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Material','Category1', 'Category2', 'Category3', 'keyPhrases']] #reorder columns
+export = export.assign(Material = material, Category1=searchCategory, Category2="", Category3="", Irrelevent = 0) 
+export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Material','Category1', 'Category2', 'Category3', 'keyPhrases', 'Irrelevent']] #reorder columns
 
 #export csv
 csvFileName = searchCategory + 'final.csv'
 export.to_csv(csvFileName)
-os.remove(fileName)
+removeFile = searchCategory + ".csv"
+os.remove(removeFile)
+os.remove(csvFileName)
 
 # export/append to excel workbook
 ## check if file exists
