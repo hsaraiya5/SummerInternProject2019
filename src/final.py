@@ -58,7 +58,7 @@ if userInput == 'Y':
       print("The phrase '" + phrase + "' already exists within this category")
 
     userAnswer = input("Would you like to keep updating/adding to the set of key phrases? (Y/N): ")
-    categories_df.to_csv("src/categories2.csv")
+    categories_df.to_csv("src/categories2.csv", index=False)
 
 
 searchAnswer = input("Would you like to run a search? (Y/N): ")
@@ -148,8 +148,8 @@ for x in range(totalLength):
 export = pd.concat([tweets.drop(['id', 'language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
 # content Catgories
 categories = pd.DataFrame({'Category': ['Lifestyle', 'Cost', 'Aesthetic', 'Product', 'Sustainability', 'Art', 'Convenience','Innovation', 'Advertisement']})
-export = export.assign(Category1="", Category2="", Category3="") 
-export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Category1', 'Category2', 'Category3', 'keyPhrases']] #reorder columns
+export = export.assign(Material = material, Category1=searchCategory, Category2="", Category3="") 
+export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Material','Category1', 'Category2', 'Category3', 'keyPhrases']] #reorder columns
 
 #export csv
 csvFileName = searchCategory + 'final.csv'
