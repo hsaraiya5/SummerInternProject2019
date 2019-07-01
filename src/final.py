@@ -30,6 +30,7 @@ languages_url = endpoint + "languages"
 headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
 categories_df = pd.read_csv('src/categories.csv')
+
 userInput = input("Would you like to update the keywords database? (Y/N): ")
 if userInput == 'Y':
 
@@ -44,13 +45,13 @@ if userInput == 'Y':
 
     category_name = input("Please enter the name of the category you would like to add/update: ")
     if category_name not in categories_list:
-      categories_df[category_name] = 'test'
+      categories_df[category_name] = ' '
 
 
     phrase = input("Please enter the keyword/phrase you would like to add to the category: ")
 
     keywords = list(categories_df[category_name])
-    index = keywords.index('test')
+    index = keywords.index(' ')
     if phrase not in keywords:
       keywords[index] = phrase
       categories_df[category_name] = keywords
@@ -63,13 +64,13 @@ if userInput == 'Y':
 
 searchAnswer = input("Would you like to run a search? (Y/N): ")
 
-searchCategory = 'test'
+searchCategory = ' '
 if searchAnswer == 'Y':
   categoryChoices = list(categories_df.columns.values)
   print(categoryChoices)
   searchCategory = input("Please select a category name from the choices above: ")
   keywordChoices = list(categories_df[searchCategory])
-  testIndex = keywordChoices.index('test')
+  testIndex = keywordChoices.index(' ')
   print(keywordChoices[:testIndex])
   keywordAnswer = input("Please select a keyword to search from the choices above: ")
 
