@@ -45,13 +45,13 @@ if userInput == 'Y':
 
     category_name = input("Please enter the name of the category you would like to add/update: ")
     if category_name not in categories_list:
-      categories_df[category_name] = '0'
+      categories_df[category_name] = 'o'
 
 
     phrase = input("Please enter the keyword/phrase you would like to add to the category: ")
 
     keywords = list(categories_df[category_name])
-    index = keywords.index('0')
+    index = keywords.index('o')
     if phrase not in keywords:
       keywords[index] = phrase
       categories_df[category_name] = keywords
@@ -64,14 +64,14 @@ if userInput == 'Y':
 
 searchAnswer = input("Would you like to run a search? (Y/N): ")
 
-searchCategory = '0'
+searchCategory = 'o'
 if searchAnswer == 'Y':
   categoryChoices = list(categories_df.columns.values)
   print(categoryChoices)
   searchCategory = input("Please select a category name from the choices above: ")
   keywordChoices = list(categories_df[searchCategory])
-  testIndex = keywordChoices.index('0')
-  print(keywordChoices[:testIndex]
+  testIndex = keywordChoices.index('o')
+  print(keywordChoices[:testIndex])
   keywordAnswer = input("Please select a keyword to search from the choices above: ")
 
 
