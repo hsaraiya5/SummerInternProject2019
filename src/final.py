@@ -87,7 +87,7 @@ queries = [query]
 query = query.replace(" ", "")
 csvFileName = 'finalData/' + searchCategory + '.csv'
 for i in range(len(queries)):
-  search_results = api.search(q = queries[i], until= date)
+  search_results = api.search(q = queries[i], lang = 'en',until= date)
   # Opening new CSV file and writing tweet info to file
   
   csvFile = open(csvFileName, 'a')
@@ -104,7 +104,7 @@ os.chdir('./finalData')
 fileName = searchCategory +'.csv'
 tweets = pd.read_csv(fileName, header = None)
 tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
-
+os.remove(fileName)
 
 # Clean the text of each tweet
 def clean_tweet(string):
@@ -156,7 +156,6 @@ export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Material
 #export csv
 csvFileName = searchCategory + 'final.csv'
 export.to_csv(csvFileName)
-os.remove(fileName)
 os.remove(csvFileName)
 
 # export/append to excel workbook
