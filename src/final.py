@@ -78,7 +78,7 @@ if searchAnswer == 'Y':
 material = input("What material would you like to search about? (glass/plastic/aluminum can): ")
 
 query = material + keywordAnswer
-date = input("Enter data from which you want tweets (YYYY-MM-DD): ")
+#date = input("Enter data from which you want tweets (YYYY-MM-DD): ")
 
 # Obtaining tweets based on search query, and specified number of tweets
 queries = [query]
@@ -87,7 +87,7 @@ queries = [query]
 query = query.replace(" ", "")
 csvFileName = 'finalData/' + searchCategory + '.csv'
 for i in range(len(queries)):
-  search_results = api.search(q = queries[i], lang = 'en',until= date)
+  search_results = api.search(q = queries[i], lang = 'en',count=500)
   # Opening new CSV file and writing tweet info to file
   
   csvFile = open(csvFileName, 'a')
