@@ -102,7 +102,10 @@ for i in range(len(queries)):
 #-Read in tweets from CSV to a dataframe
 os.chdir('./finalData')
 fileName = searchCategory +'.csv'
-tweets = pd.read_csv(fileName, header = None)
+if(os.stat(fileName).st_size == 0):
+  sys.exit('No tweets pulled for ' + searchCategory + 'category')
+else:
+  tweets = pd.read_csv(fileName, header = None)
 tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
 os.remove(fileName)
 
