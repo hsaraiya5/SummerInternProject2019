@@ -1,2 +1,0 @@
-from facepy import GraphAPI
-
