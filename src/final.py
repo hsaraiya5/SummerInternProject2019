@@ -103,6 +103,7 @@ for i in range(len(queries)):
 os.chdir('./finalData')
 fileName = searchCategory +'.csv'
 if(os.stat(fileName).st_size == 0):
+  os.remove(fileName)
   sys.exit('No tweets pulled for ' + searchCategory + 'category')
 else:
   tweets = pd.read_csv(fileName, header = None)
