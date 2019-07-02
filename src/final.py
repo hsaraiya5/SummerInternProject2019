@@ -87,13 +87,13 @@ queries = [query]
 query = query.replace(" ", "")
 csvFileName = 'finalData/' + searchCategory + '.csv'
 for i in range(len(queries)):
-  search_results = api.search(q = queries[i], lang = 'en',count=500)
+  search_results = api.search(q = queries[i], lang = 'en',tweet_mode = "extended", count=500)
   # Opening new CSV file and writing tweet info to file
   
   csvFile = open(csvFileName, 'a')
   csvWriter = csv.writer(csvFile)
   for tweet in search_results:
-    csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count])
+    csvWriter.writerow([tweet.created_at, tweet.full_text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count])
   csvFile.close()
 
 
