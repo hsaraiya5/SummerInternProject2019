@@ -15,7 +15,7 @@ import sys
 from openpyxl import load_workbook
 
 
-
+##################################### ACCESS TWITTER AND AZURE API #########################################################
 # Setting up access key, secret key, and api in order to get tweets
 auth = tweepy.auth.OAuthHandler('DSES0LTFK2vAFV3zGAwQlJXDa', 'KLVUqauEqqelnZZPry9GPTvHuLrY3nnk3FkV5kmGtdKsodkhbQ')
 auth.set_access_token('1131180954851131392-3mM1DFFs1CRr80YaBMsMrMXSrw5hC9', 's9STIOmxPZHXyDo6I3GYUorJ29LDYa2SGpPru6Os9MGtc')
@@ -29,13 +29,23 @@ keyPhrases_url = endpoint + "keyPhrases"
 languages_url = endpoint + "languages"
 headers   = {"Ocp-Apim-Subscription-Key": subscription_key}
 
+
+
+
+
+
+
+
+####################################### USER INPUT FOR TWITTER QUERIES #########################################################
 categories_df = pd.read_csv('src/categories.csv')
+
+#initialize lists
 categories_list = list(categories_df.columns.values)
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-keyword_search = []
 category = []
 material = []
-### check for updating keywords database
+
+
+#----------------------------------- updating keywords database ----------------------------------------------------------------
 userInput = input("Would you like to update the keywords database? (Y/N): ")
 if userInput == 'Y':
 
@@ -45,7 +55,6 @@ if userInput == 'Y':
     categories_df = pd.read_csv('src/categories.csv')
 
     print(categories_df)
-    #categories_list = list(categories_df.columns.values)
 
 
     category_name = input("Please enter the name of the category you would like to add/update: ")
@@ -65,12 +74,37 @@ if userInput == 'Y':
 
     userAnswer = input("Would you like to keep updating/adding to the set of key phrases? (Y/N): ")
     categories_df.to_csv('src/categories.csv', index=False)
+    
+    # content Catgories
+    categories_new = list(categories_df.columns.values)
+    categories = pd.DataFrame({'Category': categories_new})
+
+#---------------------------------ask user for Categories | Keywords -------------------------------------------------
 
 ### Decide which category/keywords/materials to search for
 searchAnswer = input("Would you like to run a search? (Y/N): ")
 
 #c = 'o'
-if searchAnswer == 'Y': ### choose category/categories to query for
+if searchAnswer == 'Y': 
+  
+  #### USER SELECTS MATERIALS ###
+  print("""
+
+  """)
+  userInput = input("""Which materials would you like to search for (glass/plastic/aluminum can)?
+
+  If selecting multiple, separate by comma. ex: glass, plastic
+  If you would like to search for all keywords type ALL
+    
+Enter: """)
+  if userInput == 'ALL':
+    material = ['glass','plastic','aluminum can']
+  else:
+    for i in userInput.split(","):
+      material.append(i.strip())
+
+  
+  ### choose category/categories to query for
   categoryChoices = list(categories_df.columns.values)
   print(categoryChoices)
 
@@ -82,19 +116,35 @@ if searchAnswer == 'Y': ### choose category/categories to query for
 Enter: """)
   print(userInput)
 
+###### QUERY FOR ALL POSSIBLE CATEGORIES | KEYWORDS ######### 
   if userInput == 'ALL':
     category = categoryChoices
-    print(category)
-    print('query for all Categories their respective keywords')
-    for c in range(1,len(category)):
+    for c in category:
       keyword = list(categories_df[category[c]])
       testIndex = keyword.index('o')
       keyword = keyword[:testIndex]
-      keyword_search = keyword_search + keyword
+
+      ## Get the Tweets
+      csvFileName = 'finalData/' + c + '.csv'
+  
+      for m in material:
+        for k in keyword:
+          query = m + ' ' + k
+          search_results = api.search(q = query, lang = 'en',tweet_mode = "extended", count=500)
+          # Opening new CSV file and writing tweet info to file
+          print("Obtain Tweets for query: " + query)
+          csvFile = open(csvFileName, 'a')
+          csvWriter = csv.writer(csvFile)
+          for tweet in search_results:
+            csvWriter.writerow([tweet.created_at, tweet.full_text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count, m])
+          csvFile.close()      
+  
+  ###### QUERY FOR SELECT CATEGORIES | KEYWORDS ######### 
   else:
     for i in userInput.split(","):
       category.append(i.strip())
     for c in category:
+      keyword_search = []
       keyword = list(categories_df[c])
       testIndex = keyword.index('o')
       keyword = keyword[:testIndex]
@@ -112,51 +162,33 @@ Enter: """)
       for i in userInput.split(","):
         keyword_search.append(i.strip())
 
-#check for materials.
-print("""
-
-""")
-userInput = input("""Which materials would you like to search for (glass/plastic/aluminum can)?
-
-  If selecting multiple, separate by comma. ex: glass, plastic
-  If you would like to search for all keywords type ALL
-    
-Enter: """)
-if userInput == 'ALL':
-  material = ['glass','plastic', 'aluminum can']
-else:
-    for i in userInput.split(","):
-      material.append(i.strip())
-
-
-#query = material + keywordAnswer
-#date = input("Enter data from which you want tweets (YYYY-MM-DD): ")
-
-# Obtaining tweets based on search query, and specified number of tweets
-#queries = [query]
+      ### Obtain the tweets
+      csvFileName = 'finalData/' + c + '.csv'
+      
+      for m in material:
+        for k in keyword_search:
+          query = m + ' ' + k
+          search_results = api.search(q = query, lang = 'en',tweet_mode = "extended", count=500)
+          # Opening new CSV file and writing tweet info to file
+          print("Obtain Tweets for query: " + query)
+          csvFile = open(csvFileName, 'a')
+          csvWriter = csv.writer(csvFile)
+          for tweet in search_results:
+            csvWriter.writerow([tweet.created_at, tweet.full_text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count, m])
+          csvFile.close()      
 
 
-#query = query.replace(" ", "")
 
-# cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-for c in category:
- csvFileName = 'finalData/' + c + '.csv'
- materials = []
-# mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
- for m in material:
-    for k in keyword_search:
-      query = m + ' ' + k
-  # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-      search_results = api.search(q = query, lang = 'en',tweet_mode = "extended", count=500)
-      materials = materials + [m]*len(search_results)
-      # Opening new CSV file and writing tweet info to file
-      print("Obtain Tweets for query: " + query)
-      csvFile = open(csvFileName, 'a')
-      csvWriter = csv.writer(csvFile)
-      for tweet in search_results:
-        csvWriter.writerow([tweet.created_at, tweet.full_text.encode('utf-8'), tweet.favorite_count, tweet.retweet_count])
-      csvFile.close()
 
+
+
+
+
+
+
+
+
+####################################### FORMAT TWEETS #########################################################
 
 os.chdir('./finalData')
 for c in category:
@@ -167,7 +199,7 @@ for c in category:
     sys.exit('No tweets pulled for ' + c + 'category')
   else:
     tweets = pd.read_csv(fileName, header = None)
-  tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets']
+  tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets', 'Material']
   os.remove(fileName)
 
   # Clean the text of each tweet
@@ -182,9 +214,18 @@ for c in category:
   tweets_temp = pd.DataFrame(tweets[['id','language','text']]) #.set_index('id')) #get just id, language, and text
   tweets_dict = {"documents" : tweets_temp.to_dict('records')} #convert df to dictionary
 
-# Language Detection
-#response  = requests.post(languages_url, headers=headers, json=tweets_dict)
-#languages = response.json()
+
+
+
+
+
+
+
+
+####################################### RUN AZURE TEXT ANALYTICS (SENTIMENT & KEYPHRASES) #########################################################
+  # Language Detection
+  #response  = requests.post(languages_url, headers=headers, json=tweets_dict)
+  #languages = response.json()
 
   # Sentiment Analysis
   response  = requests.post(sentiment_url, headers=headers, json=tweets_dict)
@@ -210,11 +251,12 @@ for c in category:
   for x in range(totalLength):
     df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
+
+
+####################################### FORMAT DATA FOR EXCEL EXPORT #########################################################
   # combine azure data to original data
   export = pd.concat([tweets.drop(['id', 'language'], axis=1).rename({'text':'Tweet'}, axis='columns'),df.drop('id', axis=1).rename({'score':'Sentiment'}, axis='columns')], axis=1)
-  # content Catgories
-  categories = pd.DataFrame({'Category': categories_df.columns.values})
-  export = export.assign(Material = materials, Category1=c, Category2="", Category3="", Irrelevent = 0, News=0) 
+  export = export.assign(Category1=c, Category2="", Category3="", Irrelevent = 0, News=0) 
   export = export[['Time','Tweet', 'Favorites', 'Retweets', 'Sentiment', 'Material','Category1', 'Category2', 'Category3', 'keyPhrases', 'News', 'Irrelevent']] #reorder columns
 
   #export csv
@@ -222,7 +264,14 @@ for c in category:
   export.to_csv(csvFileName)
   os.remove(csvFileName)
 
-  # export/append to excel workbook
+
+
+
+
+
+
+
+####################################### EXPORT DATA TO EXCEL WORKBOOK #########################################################
   ## check if file exists
   xlFileName = './' + c + 'final.xlsx'
 
@@ -241,8 +290,7 @@ for c in category:
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets) 
 
     export.to_excel(writer, "Sheet 1", index=False)
-
-    if c not in set(categories_list): 
+    if len(categories_new) > len(categories_list):
       categories.to_excel(writer, "Sheet 2") 
 
     writer.save()
