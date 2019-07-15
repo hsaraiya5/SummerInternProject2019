@@ -14,6 +14,7 @@ import sys
 
 from openpyxl import load_workbook
 
+categories_new = []
 
 ##################################### ACCESS TWITTER AND AZURE API #########################################################
 # Setting up access key, secret key, and api in order to get tweets
@@ -22,7 +23,7 @@ auth.set_access_token('1131180954851131392-3mM1DFFs1CRr80YaBMsMrMXSrw5hC9', 's9S
 api = tweepy.API(auth)
 
 # Set up Cognitive Services
-subscription_key = "0927e8dd00424bad9a18ffef4c0a2618"
+subscription_key = "823c2e253d274b019cf1eed017916825"
 endpoint = "https://eastus.api.cognitive.microsoft.com/text/analytics/v2.0/"
 sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
@@ -43,7 +44,7 @@ categories_df = pd.read_csv('src/categories.csv')
 categories_list = list(categories_df.columns.values)
 category = []
 material = []
-
+categories = pd.DataFrame({'Category': categories_list})
 
 #----------------------------------- updating keywords database ----------------------------------------------------------------
 userInput = input("Would you like to update the keywords database? (Y/N): ")
@@ -159,8 +160,11 @@ Enter: """)
   If you would like to search for all keywords type ALL
     
 Enter: """)
-      for i in userInput.split(","):
-        keyword_search.append(i.strip())
+      if userInput == "ALL":
+        keyword_search = keyword
+      else:
+        for i in userInput.split(","):
+          keyword_search.append(i.strip())
 
       ### Obtain the tweets
       csvFileName = 'finalData/' + c + '.csv'
@@ -200,7 +204,7 @@ for c in category:
   else:
     tweets = pd.read_csv(fileName, header = None)
   tweets.columns = ['Time','Tweet', 'Favorites', 'Retweets', 'Material']
-  os.remove(fileName)
+  
 
   # Clean the text of each tweet
   def clean_tweet(string):
@@ -245,13 +249,13 @@ for c in category:
   keyPhrasesObjects = keyPhrasesValues[0]
 
   totalLength = len(sentimentValues[0])
-
+  print(totalLength)
   df = pd.DataFrame(columns=['id', 'score', 'keyPhrases'])
-
+  print(range(totalLength))
   for x in range(totalLength):
     df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
-
+  os.remove(fileName)
 
 ####################################### FORMAT DATA FOR EXCEL EXPORT #########################################################
   # combine azure data to original data
