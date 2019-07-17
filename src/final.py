@@ -249,9 +249,7 @@ for c in category:
   keyPhrasesObjects = keyPhrasesValues[0]
 
   totalLength = len(sentimentValues[0])
-  print(totalLength)
   df = pd.DataFrame(columns=['id', 'score', 'keyPhrases'])
-  print(range(totalLength))
   for x in range(totalLength):
     df = df.append(pd.Series([sentimentObjects[x]['id'], sentimentObjects[x]['score'], keyPhrasesObjects[x]['keyPhrases']], index=df.columns), ignore_index=True)
 
