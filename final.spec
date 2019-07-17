@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['final.py'],
+a = Analysis(['src\\final.py'],
              pathex=['C:\\Users\\u720149\\OneDrive - O-I\\SummerInternProject2019'],
              binaries=[],
              datas=[],

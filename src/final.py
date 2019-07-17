@@ -11,19 +11,33 @@ from IPython.display import HTML
 import csv
 from csv import DictWriter
 import sys
-
+import xlrd
 from openpyxl import load_workbook
 
 categories_new = []
 
+loc = ("apiKeys.xlsx")
+wb = xlrd.open_workbook(loc)
+sheet = wb.sheet_by_index(0)
+
+apiKey = sheet.cell_value(1,1)
+apiSecretKey = sheet.cell_value(2,1)
+
+accessToken = sheet.cell_value(3,1)
+accessTokenSecret = sheet.cell_value(4,1)
+
+subscription_key = sheet.cell_value(7,1)
+
+
+
 ##################################### ACCESS TWITTER AND AZURE API #########################################################
 # Setting up access key, secret key, and api in order to get tweets
-auth = tweepy.auth.OAuthHandler('DSES0LTFK2vAFV3zGAwQlJXDa', 'KLVUqauEqqelnZZPry9GPTvHuLrY3nnk3FkV5kmGtdKsodkhbQ')
-auth.set_access_token('1131180954851131392-3mM1DFFs1CRr80YaBMsMrMXSrw5hC9', 's9STIOmxPZHXyDo6I3GYUorJ29LDYa2SGpPru6Os9MGtc')
+auth = tweepy.auth.OAuthHandler(apiKey, apiSecretKey)
+auth.set_access_token(accessToken, accessTokenSecret)
 api = tweepy.API(auth)
 
 # Set up Cognitive Services
-subscription_key = "823c2e253d274b019cf1eed017916825"
+
 endpoint = "https://eastus.api.cognitive.microsoft.com/text/analytics/v2.0/"
 sentiment_url = endpoint + "sentiment"
 keyPhrases_url = endpoint + "keyPhrases"
