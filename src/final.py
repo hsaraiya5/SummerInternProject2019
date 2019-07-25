@@ -8,13 +8,13 @@ import requests
 from pprint import pprint
 import json
 from IPython.display import HTML
-import csv
 from csv import DictWriter
 import sys
 import xlrd
+from datetime import date
 from openpyxl import load_workbook
 
-categories_new = []
+date = str(date.today())
 
 loc = ("apiKeys.xlsx")
 wb = xlrd.open_workbook(loc)
@@ -56,6 +56,7 @@ categories_df = pd.read_csv('src/categories.csv')
 
 #initialize lists
 categories_list = list(categories_df.columns.values)
+categories_new = []
 category = []
 material = []
 categories = pd.DataFrame({'Category': categories_list})
@@ -289,13 +290,11 @@ for c in category:
 
 ####################################### EXPORT DATA TO EXCEL WORKBOOK #########################################################
   ## check if file exists
-  xlFileName = './' + c + 'final.xlsx'
-
+  xlFileName = './' + date + '.xlsx'
   import os.path
   from os import path
-  print('Create and open excel workbook for ' + c)
-  if path.exists(xlFileName):
-    print(xlFileName + ' exists') #Confirmation message
+  if path.exists(xlFileName): 
+    print("adding " + c +" to " + xlFileName) #Confirmation message
     temp = pd.read_excel(xlFileName) #Append new data to existing data
     export = temp.append(export)
 
@@ -312,6 +311,7 @@ for c in category:
     writer.save()
   else:
     print(xlFileName+' new')
+    print("adding " + c +" to " + xlFileName)
     write = pd.ExcelWriter(xlFileName, engine='xlsxwriter')
     export.to_excel(write, sheet_name='Sheet 1', index=False)
     categories.to_excel(write, sheet_name='Sheet 2')
