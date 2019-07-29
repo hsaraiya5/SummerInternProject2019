@@ -13,6 +13,7 @@ import sys
 import xlrd
 from datetime import date
 from openpyxl import load_workbook
+from requests_ntlm import HttpNtlmAuth
 
 date = str(date.today())
 
@@ -316,3 +317,4 @@ for c in category:
     export.to_excel(write, sheet_name='Sheet 1', index=False)
     categories.to_excel(write, sheet_name='Sheet 2')
     write.save()
+
